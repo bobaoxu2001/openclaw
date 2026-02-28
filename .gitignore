@@ -1,0 +1,20 @@
+# Environment variables (contains secrets)
+.env
+
+# Persistent data directories
+data/
+
+# Docker
+*.tar
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
