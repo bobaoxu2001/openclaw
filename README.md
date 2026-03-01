@@ -24,6 +24,18 @@ cp .env.example .env
 ./deploy.sh
 ```
 
+### macOS
+
+```bash
+# Install prerequisites via Homebrew
+brew install node@22
+corepack enable
+
+# Then follow the steps above
+```
+
+On macOS, the source code is installed to `~/openclaw-src` by default (instead of `/opt/openclaw`).
+
 The deploy script will:
 1. Validate Node.js, pnpm, and git are installed
 2. Install Bun (build dependency) if not present
