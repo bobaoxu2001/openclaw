@@ -79,7 +79,11 @@ setup_env() {
         log_info "Generating gateway token..."
         OPENCLAW_GATEWAY_TOKEN=$(openssl rand -hex 32 2>/dev/null || head -c 64 /dev/urandom | od -An -tx1 | tr -d ' \n')
         if grep -q "^OPENCLAW_GATEWAY_TOKEN=" .env; then
-            sed -i "s/^OPENCLAW_GATEWAY_TOKEN=.*/OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}/" .env
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' "s/^OPENCLAW_GATEWAY_TOKEN=.*/OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}/" .env
+            else
+                sed -i "s/^OPENCLAW_GATEWAY_TOKEN=.*/OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}/" .env
+            fi
         else
             echo "OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}" >> .env
         fi
