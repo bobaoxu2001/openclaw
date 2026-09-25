@@ -41,6 +41,8 @@ before(() => {
   git(["checkout", "-q", "main"]);
   commit({ "src/main-only.ts": lines("m", 5) }, "Main work");
   git(["checkout", "-q", "feature"]);
+  // Bring main into the branch, as CI does when it checks out a PR's merge commit.
+  git(["merge", "-q", "--no-edit", "main"], { GIT_AUTHOR_NAME: "Ada", GIT_AUTHOR_EMAIL: "ada@example.com", GIT_COMMITTER_NAME: "Ada", GIT_COMMITTER_EMAIL: "ada@example.com" });
 });
 
 after(() => rmSync(root, { recursive: true, force: true }));
@@ -76,7 +78,7 @@ test("analyzeDiff attributes exactly the lines the branch adds", async () => {
   assert.equal(r.totals.lines, 18, "6 + 8 from Claude, 4 from the human; nothing from main");
   assert.equal(r.totals.ai, 14);
   assert.equal(r.totals.human, 4);
-  assert.equal(r.commits.total, 2);
+  assert.equal(r.commits.total, 2, "the merge commit is not counted");
   assert.equal(r.commits.ai, 1);
   assert.deepEqual(r.agents.map((a) => [a.id, a.lines]), [["claude-code", 14]]);
   assert.ok(!r.files.some((f) => f.path === "src/main-only.ts"));

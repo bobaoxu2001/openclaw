@@ -112,13 +112,14 @@ export async function walkLog(
   repo: RepoInfo,
   sha: string,
   onCommit: (c: Commit) => void,
-  opts: { since?: string; numstat?: boolean } = {},
+  opts: { since?: string; numstat?: boolean; noMerges?: boolean } = {},
 ): Promise<void> {
   const format = `${RS}%H${FS}%an${FS}%ae${FS}%cn${FS}%ce${FS}%at${FS}%ct${FS}%B${FS}`;
   const args = ["log", `--format=${format}`, "--no-color"];
   // Line counts need a diff per commit, which dominates run time on big histories.
   if (opts.numstat) args.push("--numstat", "-M");
   if (opts.since) args.push(`--since=${opts.since}`);
+  if (opts.noMerges) args.push("--no-merges");
   args.push(sha, "--");
   let buf = "";
   const flush = (rec: string) => {

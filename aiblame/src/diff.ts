@@ -93,7 +93,8 @@ export async function analyzeDiff(opts: DiffOptions): Promise<DiffReport> {
   const mergeBase = (await git(["merge-base", baseSha, headSha], { cwd: repo.dir })).trim();
   const filter = makeFilter(opts);
 
-  // Commits on the branch.
+  // Commits on the branch. Merges are left out: they add no code of their own, and on CI
+  // the checked-out head is usually a synthetic merge of the PR into its base.
   const commits = new Map<string, CommitMeta>();
   const commitCount = { total: 0, ai: 0, byAgent: {} as Record<string, number> };
   await walkLog(repo, `${mergeBase}..${headSha}`, (c) => {
@@ -104,7 +105,7 @@ export async function analyzeDiff(opts: DiffOptions): Promise<DiffReport> {
       commitCount.ai++;
       commitCount.byAgent[agent] = (commitCount.byAgent[agent] ?? 0) + 1;
     }
-  });
+  }, { noMerges: true });
 
   // Lines the branch adds, then who wrote each of them.
   const patch = await git(
