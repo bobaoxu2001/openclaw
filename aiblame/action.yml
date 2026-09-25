@@ -1,37 +1,46 @@
 name: aiblame
-description: How much of this repo was written by AI? Keep an aiblame card or badge up to date, or enforce an AI-code policy.
+description: How much of this repo, or this pull request, was written by AI? Comment on PRs, keep a README card up to date, or enforce an AI-code policy.
 author: aiblame contributors
 branding:
   icon: cpu
   color: purple
 
 inputs:
+  pr-comment:
+    description: On pull_request events, post (and keep updating) one comment saying how much of what the PR adds was written by AI. Needs `pull-requests write` permission.
+    default: "false"
+  pr-max-ai:
+    description: On pull_request events, fail the step when more than this percentage of the lines the PR adds were written by AI.
+    default: ""
   card:
-    description: Write an SVG card to this path (e.g. .github/aiblame-card.svg).
+    description: Write an SVG card for the whole repo to this path (e.g. .github/aiblame-card.svg).
     default: ""
   badge:
-    description: Write an SVG badge to this path (e.g. .github/aiblame-badge.svg).
+    description: Write an SVG badge for the whole repo to this path (e.g. .github/aiblame-badge.svg).
     default: ""
   html:
-    description: Write the HTML report to this path.
+    description: Write the HTML report for the whole repo to this path.
     default: ""
   json:
-    description: Write the JSON report to this path.
-    default: aiblame.json
+    description: Write the JSON report for the whole repo to this path.
+    default: ""
   max-ai:
-    description: Fail the step when the AI-written share (in percent) is above this.
+    description: Fail the step when the AI-written share of the whole repo (in percent) is above this.
     default: ""
   args:
-    description: Extra command-line arguments for aiblame (e.g. --exclude 'docs/**').
+    description: Extra command-line arguments for aiblame (e.g. --exclude 'docs/**'), used for both the repo and the PR analysis.
     default: ""
+  github-token:
+    description: Token used to post the pull-request comment.
+    default: ${{ github.token }}
 
 outputs:
   ai-share:
-    description: Percentage of the current code written by AI, e.g. "41.3".
-    value: ${{ steps.run.outputs.ai-share }}
-  report:
-    description: Path of the JSON report.
-    value: ${{ inputs.json }}
+    description: Percentage of the repo's current code written by AI, e.g. "41.3" (when the whole repo was analyzed).
+    value: ${{ steps.repo.outputs.ai-share }}
+  pr-ai-share:
+    description: Percentage of the lines the pull request adds that were written by AI (on pull_request events).
+    value: ${{ steps.pr.outputs.ai-share }}
 
 runs:
   using: composite
@@ -42,8 +51,14 @@ runs:
         if [ ! -f "$GITHUB_ACTION_PATH/dist/cli.js" ]; then
           cd "$GITHUB_ACTION_PATH" && npm ci --no-audit --no-fund --silent && npm run build --silent
         fi
-    - name: Run aiblame
-      id: run
+        if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+          echo "::warning::Shallow checkout: aiblame needs history. Use actions/checkout with fetch-depth: 0."
+        fi
+
+    # The whole repository. Skipped when the action is only used for PR comments.
+    - name: Analyze the repository
+      id: repo
+      if: inputs.pr-comment != 'true' || inputs.card != '' || inputs.badge != '' || inputs.html != '' || inputs.json != '' || inputs.max-ai != ''
       shell: bash
       env:
         CARD: ${{ inputs.card }}
@@ -53,10 +68,8 @@ runs:
         MAX_AI: ${{ inputs.max-ai }}
         EXTRA: ${{ inputs.args }}
       run: |
-        if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
-          echo "::warning::Shallow checkout: every old line gets blamed on one commit. Use actions/checkout with fetch-depth: 0."
-        fi
-        args=(--json "$JSON")
+        json="${JSON:-$RUNNER_TEMP/aiblame.json}"
+        args=(--json "$json")
         [ -n "$CARD" ] && mkdir -p "$(dirname "$CARD")" && args+=(--card "$CARD")
         [ -n "$BADGE" ] && mkdir -p "$(dirname "$BADGE")" && args+=(--badge "$BADGE")
         [ -n "$HTML" ] && mkdir -p "$(dirname "$HTML")" && args+=(--html "$HTML")
@@ -67,7 +80,47 @@ runs:
         node "$GITHUB_ACTION_PATH/dist/cli.js" "${args[@]}" $EXTRA
         code=$?
         set -e
-        share=$(node -e 'const r=require(process.argv[1]);console.log(r.totals.lines?(r.totals.ai/r.totals.lines*100).toFixed(1):"0.0")' "$(realpath "$JSON")")
+        share=$(node -e 'const r=require(process.argv[1]);console.log(r.totals.lines?(r.totals.ai/r.totals.lines*100).toFixed(1):"0.0")' "$(realpath "$json")")
         echo "ai-share=$share" >> "$GITHUB_OUTPUT"
         echo "### aiblame: ${share}% of this repo is AI-written" >> "$GITHUB_STEP_SUMMARY"
+        exit $code
+
+    # Just the lines the pull request adds.
+    - name: Analyze the pull request
+      id: pr
+      if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && (inputs.pr-comment == 'true' || inputs.pr-max-ai != '')
+      shell: bash
+      env:
+        BASE_REF: ${{ github.base_ref }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        COMMENT: ${{ inputs.pr-comment }}
+        MAX_AI: ${{ inputs.pr-max-ai }}
+        EXTRA: ${{ inputs.args }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        git rev-parse --verify --quiet "origin/$BASE_REF" >/dev/null || git fetch --no-tags --quiet origin "$BASE_REF:refs/remotes/origin/$BASE_REF"
+        md="$RUNNER_TEMP/aiblame-pr.md"
+        json="$RUNNER_TEMP/aiblame-pr.json"
+        args=(diff "origin/$BASE_REF" --quiet --markdown "$md" --json "$json")
+        [ -n "$MAX_AI" ] && args+=(--max-ai "$MAX_AI")
+        set +e
+        # shellcheck disable=SC2086
+        node "$GITHUB_ACTION_PATH/dist/cli.js" "${args[@]}" $EXTRA
+        code=$?
+        set -e
+        share=$(node -e 'const r=require(process.argv[1]);console.log(r.totals.lines?(r.totals.ai/r.totals.lines*100).toFixed(1):"0.0")' "$json")
+        echo "ai-share=$share" >> "$GITHUB_OUTPUT"
+        cat "$md" >> "$GITHUB_STEP_SUMMARY"
+        if [ "$COMMENT" = "true" ]; then
+          # One comment per PR, found again by its marker and edited in place.
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" --paginate \
+            --jq '[.[] | select(.body | contains("<!-- aiblame -->"))] | last | .id // empty' 2>/dev/null | tail -n1) || id=""
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F "body=@$md" >/dev/null \
+              || echo "::warning::aiblame could not update its PR comment (read-only token on a fork PR?)"
+          else
+            gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" -F "body=@$md" >/dev/null \
+              || echo "::warning::aiblame could not post a PR comment (read-only token on a fork PR?)"
+          fi
+        fi
         exit $code

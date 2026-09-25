@@ -9,3 +9,5 @@ export { renderTerminal } from "./report/terminal.js";
 export { loadTranscripts, parseApplyPatch, parseSearchReplace, TranscriptIndex } from "./transcripts.js";
 export { createPainter } from "./util/ansi.js";
 export { VERSION } from "./version.js";
+export { analyzeDiff, parseAddedRanges, type DiffOptions, type DiffReport } from "./diff.js";
+export { COMMENT_MARKER, renderDiffMarkdown } from "./report/markdown.js";

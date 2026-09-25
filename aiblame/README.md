@@ -112,6 +112,7 @@ npx aiblame ~/code/my-app          # another local repo
 npx aiblame facebook/react         # any GitHub repo (cloned to a temp dir)
 npx aiblame --code                 # programming languages only: skip docs, config & data
 npx aiblame blame src/index.ts     # line-by-line: who wrote each line?
+npx aiblame diff origin/main       # how much of this branch / pull request did AI write?
 npx aiblame evidence               # audit: which signatures matched, and how often
 npx aiblame --html                 # a shareable, self-contained HTML report
 ```
@@ -123,6 +124,20 @@ Install globally (`npm i -g aiblame`) and it also works as a git subcommand: `gi
 Like `git blame`, but the gutter tells you which agent wrote each line.
 
 <img src="docs/blame.png" width="720" alt="aiblame blame on a React component: lines colour-coded by OpenHands, Cursor, Claude Code and human">
+
+### `aiblame diff [base]`
+
+How much of what your branch adds was written by AI? aiblame takes the lines added since the merge base, blames exactly those,
+and attributes them. `--markdown` renders the result as a pull-request comment, and the [GitHub Action](#github-action) posts it for you:
+
+> **🤖 aiblame: 77.8% of the lines this pull request adds were written by AI**
+>
+> 🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧⬜⬜⬜⬜
+>
+> | | Lines | Share |
+> |---|---:|---:|
+> | 🟧 Claude Code | 14 | 77.8% |
+> | ⬜ Human | 4 | 22.2% |
 
 ### `aiblame --html`
 
@@ -139,6 +154,7 @@ Output
   --badge [file]       SVG badge for your README       (default aiblame-badge.svg)
   --shields [file]     shields.io endpoint JSON        (default aiblame-shields.json)
   --json [file]        full report as JSON (stdout unless a .json file is given)
+  --markdown [file]    with diff: a pull-request comment (stdout unless a .md file is given)
   --label <text>       badge label                     (default "AI-written")
   --top <n>            rows per table                  (default 8)
   --quiet              skip the terminal report
@@ -146,6 +162,7 @@ Output
 
 Analysis
   --rev <rev>          analyze a branch, tag or commit (default HEAD)
+  --head <rev>         with diff: the branch to compare (default HEAD)
   --fast               skip blame; count lines added across history instead
   --since <date>       with --fast: only commits since then ("90 days ago", 2026-01-01)
   --include <glob>     only analyze matching paths (repeatable)
@@ -157,7 +174,7 @@ Analysis
   --full               blame every file, however big the repo
   --no-commit-graph    never write git's commit-graph cache (it makes blame ~5x faster)
   --jobs <n>           parallel git processes
-  --max-ai <percent>   exit with code 3 if the AI share is above this (CI policy)
+  --max-ai <percent>   exit with code 3 if the AI share is above this (CI policy); works with diff too
 ```
 
 ## Put it in your README
@@ -179,6 +196,31 @@ npx aiblame --card --badge --quiet
 Want it always up to date? Use the GitHub Action.
 
 ## GitHub Action
+
+### Comment on every pull request
+
+Every PR gets one comment saying how much of it was written by AI. The comment is edited in place on each push, so it never piles up:
+
+```yaml
+# .github/workflows/aiblame-pr.yml
+name: aiblame
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  aiblame:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # blame needs the full history
+      - uses: bobaoxu2001/openclaw/aiblame@main
+        with:
+          pr-comment: true
+```
+
+### Keep a README card up to date
 
 Refresh the card on every push to `main`:
 
@@ -210,16 +252,17 @@ jobs:
           git push
 ```
 
-The action also writes a job summary and exposes `steps.aiblame.outputs.ai-share` (e.g. `41.3`).
+The action also writes a job summary, and exposes `steps.aiblame.outputs.ai-share` for the repo and `pr-ai-share` for the pull request (e.g. `41.3`).
 
 ### Enforce an AI-code policy
 
-Some projects don't accept AI-generated code. Others cap it. `--max-ai` turns aiblame into a CI gate:
+Some projects don't accept AI-generated code. Others cap it. aiblame can be a CI gate for the whole repo or for each pull request:
 
 ```yaml
       - uses: bobaoxu2001/openclaw/aiblame@main
         with:
-          max-ai: 0 # fail if any signed AI code is present
+          pr-max-ai: 0 # fail PRs that add any signed AI code
+          # max-ai: 50 # or cap the share of the whole repo
 ```
 
 ## What counts as evidence

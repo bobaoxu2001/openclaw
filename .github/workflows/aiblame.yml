@@ -39,6 +39,9 @@ jobs:
 
   action:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # the action comments on the PR with its own numbers
     steps:
       - uses: actions/checkout@v5
         with:
@@ -48,7 +51,9 @@ jobs:
         with:
           card: out/aiblame-card.svg
           badge: out/aiblame-badge.svg
+          pr-comment: true
       - run: |
           test -s out/aiblame-card.svg
           test -s out/aiblame-badge.svg
           echo "AI share: ${{ steps.aiblame.outputs.ai-share }}%"
+          echo "PR AI share: ${{ steps.aiblame.outputs.pr-ai-share }}%"

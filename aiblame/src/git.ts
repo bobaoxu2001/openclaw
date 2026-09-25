@@ -184,10 +184,11 @@ export async function blameFile(
   repo: RepoInfo,
   sha: string,
   path: string,
-  opts: { ignoreRevsFile?: string } = {},
+  opts: { ignoreRevsFile?: string; ranges?: Array<[start: number, count: number]> } = {},
 ): Promise<BlameLine[]> {
   const args = ["blame", "--porcelain", "-w"];
   if (opts.ignoreRevsFile) args.push("--ignore-revs-file", opts.ignoreRevsFile);
+  for (const [start, count] of opts.ranges ?? []) args.push("-L", `${start},+${count}`);
   args.push(sha, "--", path);
   const out = await git(args, { cwd: repo.dir });
   const lines: BlameLine[] = [];

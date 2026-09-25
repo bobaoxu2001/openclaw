@@ -1,5 +1,6 @@
-import { agentInfo, HUMAN } from "../agents.js";
+import { agentInfo, HUMAN, isAI } from "../agents.js";
 import type { Report } from "../analyze.js";
+import type { DiffReport } from "../diff.js";
 import { padEnd, padStart, type Painter, truncLeft, width } from "../util/ansi.js";
 import {
   aiShare,
@@ -164,6 +165,56 @@ export function renderTerminal(r: Report, p: Painter, opts: { columns?: number; 
   line(p.dim("This is a lower bound: AI code committed without a signature looks human to git."));
   line();
   line(`${p.dim("Share it:")} aiblame --card  ${p.dim("·")}  aiblame --badge  ${p.dim("·")}  aiblame --html`);
+  line();
+  return out.join("\n");
+}
+
+/** Terminal summary for `aiblame diff`. */
+export function renderDiffTerminal(r: DiffReport, p: Painter, opts: { columns?: number; top?: number } = {}): string {
+  const W = Math.max(60, Math.min(opts.columns ?? 88, 110));
+  const out: string[] = [];
+  const line = (s = "") => out.push(s ? `  ${s}` : "");
+  const t = r.totals;
+  line();
+  line(
+    `${p.bold(p.fg(AI_ACCENT, "aiblame diff"))}  ${p.bold(`${r.base}...${r.head}`)} ` +
+      p.dim(`${num(r.commits.total)} commit${r.commits.total === 1 ? "" : "s"} · ${num(t.files)} files · +${num(t.lines)} lines`),
+  );
+  if (t.lines === 0) {
+    line();
+    line("This branch adds no lines to attribute.");
+    line();
+    return out.join("\n");
+  }
+  const rows: Array<{ id: string; name: string; color: string; lines: number }> = r.agents
+    .filter((a) => a.lines > 0)
+    .map((a) => ({ id: a.id, name: a.name, color: a.color, lines: a.lines }));
+  if (t.bot) rows.push({ id: "bot", name: agentInfo("bot").name, color: agentInfo("bot").color, lines: t.bot });
+  if (t.human) rows.push({ id: HUMAN.id, name: HUMAN.name, color: HUMAN.color, lines: t.human });
+  const cells = allocate(rows.map((x) => x.lines), W - 4);
+  line();
+  line(rows.map((x, i) => p.fg(x.id === HUMAN.id ? "#3F3F46" : x.color, (x.id === HUMAN.id ? "░" : "█").repeat(cells[i]!))).join(""));
+  line(`${p.bold(p.fg(AI_ACCENT, pct(t.ai, t.lines)))} ${p.bold("of the added lines were written by AI")}`);
+  line();
+  const nameW = Math.max(14, ...rows.map((x) => width(x.name))) + 2;
+  for (const x of rows) {
+    const text = `${padEnd(x.name, nameW)}${padStart(num(x.lines), 9)}${padStart(pct(x.lines, t.lines), 8)}`;
+    line(`${p.fg(x.color, "■")} ${x.id === HUMAN.id || x.id === "bot" ? p.dim(text) : text}`);
+  }
+  const files = r.files.slice(0, opts.top ?? 8);
+  if (files.length > 1) {
+    line();
+    line(p.bold(p.dim("FILES")));
+    const pathW = W - 26;
+    for (const f of files) {
+      const ai = Object.entries(f.by).reduce((a, [id, n]) => a + (isAI(id) ? n : 0), 0);
+      const dom = dominantAgent(f.by);
+      const label = dom ? p.fg(agentInfo(dom).color, agentInfo(dom).short) : p.dim("human");
+      line(`${padStart(pct(ai, f.lines), 6)}  ${padEnd(truncLeft(f.path, pathW), pathW)} ${p.dim(padStart("+" + num(f.lines), 7))}  ${label}`);
+    }
+  }
+  line();
+  line(p.dim(`${num(r.commits.ai)} of ${num(r.commits.total)} commits on this branch are AI-signed. A lower bound: unsigned AI code counts as human.`));
   line();
   return out.join("\n");
 }

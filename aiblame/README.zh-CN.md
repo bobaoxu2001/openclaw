@@ -112,6 +112,7 @@ npx aiblame ~/code/my-app          # 其他本地仓库
 npx aiblame facebook/react         # 任意 GitHub 仓库（克隆到临时目录）
 npx aiblame --code                 # 只统计编程语言，跳过文档、配置和数据文件
 npx aiblame blame src/index.ts     # 逐行查看：每一行是谁写的？
+npx aiblame diff origin/main       # 这个分支 / PR 新增的代码里，AI 写了多少？
 npx aiblame evidence               # 审计：匹配到了哪些签名、各多少次
 npx aiblame --html                 # 生成可分享的单文件 HTML 报告
 ```
@@ -123,6 +124,15 @@ npx aiblame --html                 # 生成可分享的单文件 HTML 报告
 和 `git blame` 一样，但左侧会标出每一行是哪个智能体写的。
 
 <img src="docs/blame.png" width="720" alt="aiblame blame：按 OpenHands、Cursor、Claude Code 和人类着色的代码行">
+
+### `aiblame diff [base]`
+
+你的分支新增的代码里，有多少是 AI 写的？aiblame 只对从合并基点（merge base）以来新增的那些行做 blame 并归属。
+`--markdown` 会把结果渲染成一条 PR 评论，GitHub Action 可以自动发布：
+
+> **🤖 aiblame: 77.8% of the lines this pull request adds were written by AI**
+>
+> 🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧⬜⬜⬜⬜
 
 ### `aiblame --html`
 
@@ -141,7 +151,9 @@ npx aiblame --card --badge --quiet
 | <img src="docs/example-card.svg" width="400" alt="aiblame 卡片示例"> | <img src="docs/example-badge.svg" alt="aiblame 徽章示例"> |
 
 想让它一直保持最新？用 GitHub Action（见[英文文档](README.md#github-action)）。
-Action 还支持 `max-ai` 参数：AI 代码占比超过阈值就让 CI 失败，适合禁止或限制 AI 代码的项目。
+
+**给每个 PR 自动评论**：在 PR 工作流里加上 `pr-comment: true`，每个 PR 都会收到一条"AI 写了多少"的评论，并在每次推送时原地更新，不会刷屏。
+Action 还支持 `max-ai` / `pr-max-ai` 参数：整个仓库或单个 PR 的 AI 代码占比超过阈值就让 CI 失败，适合禁止或限制 AI 代码的项目。
 
 ## 什么算"证据"
 

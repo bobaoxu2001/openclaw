@@ -3,11 +3,13 @@ import { writeFileSync } from "node:fs";
 import { AGENTS } from "./agents.js";
 import { analyze, type Report } from "./analyze.js";
 import { renderBlameView } from "./blameView.js";
+import { analyzeDiff } from "./diff.js";
 import { renderEvidence } from "./evidence.js";
+import { renderDiffMarkdown } from "./report/markdown.js";
 import { pct } from "./report/common.js";
 import { renderHtml } from "./report/html.js";
 import { renderBadge, renderCard, renderShieldsEndpoint } from "./report/svg.js";
-import { renderTerminal } from "./report/terminal.js";
+import { renderDiffTerminal, renderTerminal } from "./report/terminal.js";
 import { cloneRemote, displayName, isRemoteTarget } from "./remote.js";
 import { createPainter } from "./util/ansi.js";
 import { VERSION } from "./version.js";
@@ -18,6 +20,7 @@ aiblame ${VERSION}: git blame for the AI era
 Usage
   aiblame [target] [options]     how much of this repo did AI write?
   aiblame blame <file>           line-by-line: who wrote each line, you or an agent?
+  aiblame diff [base]            how much of what this branch / PR adds was written by AI
   aiblame evidence [target]      which signatures matched, and how often (audit mode)
   aiblame agents                 list every agent signature aiblame knows
 
@@ -30,6 +33,7 @@ Output
   --badge [file]       SVG badge for your README       (default aiblame-badge.svg)
   --shields [file]     shields.io endpoint JSON        (default aiblame-shields.json)
   --json [file]        full report as JSON (stdout unless a .json file is given)
+  --markdown [file]    with diff: a pull-request comment (stdout unless a .md file is given)
   --label <text>       badge label                     (default "AI-written")
   --top <n>            rows per table                  (default 8)
   --quiet              skip the terminal report
@@ -37,6 +41,7 @@ Output
 
 Analysis
   --rev <rev>          analyze a branch, tag or commit (default HEAD)
+  --head <rev>         with diff: the branch to compare (default HEAD)
   --fast               skip blame; count lines added across history instead
   --since <date>       with --fast: only commits since then ("90 days ago", 2026-01-01)
   --include <glob>     only analyze matching paths (repeatable)
@@ -55,10 +60,11 @@ Examples
   npx aiblame facebook/react --fast --since "1 year ago"
   npx aiblame --card --badge --quiet
   npx aiblame blame src/index.ts
+  npx aiblame diff origin/main --markdown
 `;
 
 interface Args {
-  command: "analyze" | "blame" | "evidence" | "agents" | "help" | "version";
+  command: "analyze" | "blame" | "diff" | "evidence" | "agents" | "help" | "version";
   target: string;
   file?: string;
   rev?: string;
@@ -67,6 +73,9 @@ interface Args {
   badge?: string;
   shields?: string;
   json?: string | true;
+  markdown?: string | true;
+  base?: string;
+  head?: string;
   label?: string;
   top?: number;
   quiet: boolean;
@@ -137,6 +146,12 @@ export function parseArgs(argv: string[]): Args {
         a.json = f || true;
         break;
       }
+      case "--markdown": {
+        const f = optionalFile(/\.md$/i, "");
+        a.markdown = f || true;
+        break;
+      }
+      case "--head": a.head = value(); break;
       case "--label": a.label = value(); break;
       case "--top": a.top = Math.floor(number()); break;
       case "--quiet": case "-q": a.quiet = true; break;
@@ -165,6 +180,10 @@ export function parseArgs(argv: string[]): Args {
     if (!a.file) throw new UsageError("usage: aiblame blame <file>");
   } else if (a.command === "analyze" && positional[0] === "agents") {
     a.command = "agents";
+  } else if (a.command === "analyze" && positional[0] === "diff") {
+    a.command = "diff";
+    a.base = positional[1];
+    if (positional.length > 2) throw new UsageError("usage: aiblame diff [base] [--head <rev>]");
   } else if (a.command === "analyze" && positional[0] === "evidence") {
     a.command = "evidence";
     if (positional[1]) a.target = positional[1];
@@ -238,6 +257,26 @@ export async function main(argv: string[]): Promise<number> {
       process.stdout.write(`\n${rows.join("\n")}\n\n`);
       return 0;
     }
+    case "diff": {
+      const r = await analyzeDiff({
+        path: args.target,
+        base: args.base,
+        head: args.head,
+        include: args.include,
+        exclude: args.exclude,
+        noDefaultExcludes: args.allFiles,
+        codeOnly: args.code,
+        transcripts: args.transcripts,
+        jobs: args.jobs,
+      });
+      if (args.json === true) process.stdout.write(JSON.stringify(r, null, 2) + "\n");
+      else if (args.markdown === true) process.stdout.write(renderDiffMarkdown(r));
+      else if (!args.quiet) process.stdout.write(renderDiffTerminal(r, painter, { columns, top: args.top }) + "\n");
+      const quietLog = args.json === true || args.markdown === true;
+      if (typeof args.json === "string") write(args.json, JSON.stringify(r, null, 2) + "\n", quietLog);
+      if (typeof args.markdown === "string") write(args.markdown, renderDiffMarkdown(r), quietLog);
+      return exceedsMaxAi(args, r.totals) ? 3 : 0;
+    }
     case "evidence": {
       let clone: Awaited<ReturnType<typeof cloneRemote>> | null = null;
       try {
@@ -301,14 +340,14 @@ export async function main(argv: string[]): Promise<number> {
   if (args.badge) write(args.badge, renderBadge(report, { label: args.label }), quietLog);
   if (args.shields) write(args.shields, renderShieldsEndpoint(report, { label: args.label }), quietLog);
 
-  if (args.maxAi !== undefined && report.totals.lines > 0) {
-    const share = (report.totals.ai / report.totals.lines) * 100;
-    if (share > args.maxAi) {
-      process.stderr.write(`aiblame: AI share ${pct(report.totals.ai, report.totals.lines)} is above the --max-ai limit of ${args.maxAi}%\n`);
-      return 3;
-    }
-  }
-  return 0;
+  return exceedsMaxAi(args, report.totals) ? 3 : 0;
+}
+
+function exceedsMaxAi(args: Args, totals: { ai: number; lines: number }): boolean {
+  if (args.maxAi === undefined || totals.lines === 0) return false;
+  if ((totals.ai / totals.lines) * 100 <= args.maxAi) return false;
+  process.stderr.write(`aiblame: AI share ${pct(totals.ai, totals.lines)} is above the --max-ai limit of ${args.maxAi}%\n`);
+  return true;
 }
 
 main(process.argv.slice(2)).then(
