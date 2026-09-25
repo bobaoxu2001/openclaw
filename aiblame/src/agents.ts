@@ -40,9 +40,8 @@ export const AGENTS: AgentSignature[] = [
     message: [
       /^co-authored-by:[^\n]*<noreply@anthropic\.com>/im,
       /^co-authored-by:\s*claude\[bot\]/im,
-      /generated with \[?claude code\]?/i,
+      /^(🤖\s*)?generated with \[?claude code\b/im,
       /^claude-session:\s*https?:\/\//im,
-      /\(https:\/\/claude\.(ai|com)\/(code|claude-code)\b/i,
     ],
   },
   {
@@ -63,7 +62,10 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://cursor.com",
     identity: [/cursoragent@cursor\.com/i, /^cursor agent </i, /cursor\[bot\]/i],
-    message: [/cursoragent@cursor\.com/i, /^co-authored-by:\s*cursor[^\n]*<[^>\n]*@cursor\.(com|sh)>/im],
+    message: [
+      /^(co-authored-by|signed-off-by):\s*cursor[^\n]*<[^>\n]*@cursor\.(com|sh)>/im,
+      /^(co-authored-by|signed-off-by):[^\n]*<cursor-?agent@cursor\.com>/im,
+    ],
   },
   {
     id: "codex",
@@ -73,7 +75,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://openai.com/codex",
     identity: [/chatgpt-codex-connector/i, /codex@openai\.com/i, /^codex\[bot\] </i],
-    message: [/^co-authored-by:\s*(openai\s+)?codex\b[^\n]*<[^>\n]*(noreply|codex)[^>\n]*>/im, /chatgpt-codex-connector/i],
+    message: [/^co-authored-by:\s*(openai\s+)?codex\b[^\n]*<[^>\n]*(noreply|codex)[^>\n]*>/im, /^co-authored-by:[^\n]*chatgpt-codex-connector/im],
   },
   {
     id: "devin",
@@ -83,7 +85,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://devin.ai",
     identity: [/devin-ai-integration/i, /^devin ai </i, /@devin\.ai>/i],
-    message: [/devin-ai-integration/i, /^co-authored-by:\s*devin ai\b/im, /^co-authored-by:[^\n]*<[^>\n]*@(devin\.ai|cognition\.ai)>/im],
+    message: [/^co-authored-by:[^\n]*devin-ai-integration/im, /^co-authored-by:\s*devin ai\b/im, /^co-authored-by:[^\n]*<[^>\n]*@(devin\.ai|cognition\.ai)>/im],
   },
   {
     id: "aider",
@@ -93,7 +95,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://aider.chat",
     identity: [/\(aider\) </i, /<(noreply|aider)@aider\.chat>/i],
-    message: [/^co-authored-by:\s*aider\b[^\n]*$/im, /<(noreply|aider)@aider\.chat>/i, /^aider: /i],
+    message: [/^co-authored-by:\s*aider\b[^\n]*$/im, /^co-authored-by:[^\n]*<(noreply|aider)@aider\.chat>/im, /^aider: /i],
   },
   {
     id: "jules",
@@ -103,7 +105,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://jules.google",
     identity: [/google-labs-jules/i],
-    message: [/google-labs-jules/i],
+    message: [/^co-authored-by:[^\n]*google-labs-jules/im],
   },
   {
     id: "gemini",
@@ -114,7 +116,7 @@ export const AGENTS: AgentSignature[] = [
     url: "https://github.com/google-gemini/gemini-cli",
     identity: [/gemini-code-assist/i, /^gemini(-cli)?\[bot\] </i],
     // Not "gemini-cli-robot": that is release automation.
-    message: [/gemini-code-assist\[bot\]/i, /^co-authored-by:\s*gemini(-cli)?\[bot\]/im],
+    message: [/^co-authored-by:[^\n]*gemini-code-assist\[bot\]/im, /^co-authored-by:\s*gemini(-cli)?\[bot\]/im],
   },
   {
     id: "amp",
@@ -124,7 +126,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://ampcode.com",
     identity: [/amp@ampcode\.com/i],
-    message: [/amp@ampcode\.com/i, /^amp-thread(-id)?:/im, /ampcode\.com\/threads\//i],
+    message: [/^co-authored-by:[^\n]*<amp@ampcode\.com>/im, /^amp-thread(-id)?:/im],
   },
   {
     id: "openhands",
@@ -134,7 +136,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://all-hands.dev",
     identity: [/openhands@all-hands\.dev/i, /openhands-agent/i, /^openhands </i],
-    message: [/openhands@all-hands\.dev/i, /^co-authored-by:\s*openhands\b[^\n]*$/im],
+    message: [/^co-authored-by:[^\n]*@all-hands\.dev>/im, /^co-authored-by:\s*openhands\b[^\n]*$/im],
   },
   {
     id: "droid",
@@ -144,7 +146,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://factory.ai",
     identity: [/factory-droid/i, /@factory\.ai>/i],
-    message: [/factory-droid/i, /^co-authored-by:\s*(factory\s+)?droid\b[^\n]*$/im],
+    message: [/^co-authored-by:[^\n]*factory-droid/im, /^co-authored-by:\s*(factory\s+)?droid\b[^\n]*$/im],
   },
   {
     id: "opencode",
@@ -154,7 +156,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://opencode.ai",
     identity: [/@opencode\.ai>/i, /opencode-agent/i],
-    message: [/^co-authored-by:\s*opencode\b[^\n]*$/im, /generated with \[?opencode\]?/i],
+    message: [/^co-authored-by:\s*opencode\b[^\n]*$/im, /^(🤖\s*)?generated with \[?opencode\b/im],
   },
   {
     id: "windsurf",
@@ -184,7 +186,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://warp.dev",
     identity: [/agent@warp\.dev/i],
-    message: [/agent@warp\.dev/i],
+    message: [/^co-authored-by:[^\n]*<agent@warp\.dev>/im],
   },
   {
     id: "crush",
@@ -194,7 +196,7 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://github.com/charmbracelet/crush",
     identity: [/crush@charm\.land/i],
-    message: [/crush@charm\.land/i, /generated with \[?crush\]?/i],
+    message: [/^co-authored-by:[^\n]*<crush@charm\.land>/im, /^(💘\s*|🤖\s*)?generated with \[?crush\b/im],
   },
   {
     id: "kiro",
@@ -282,6 +284,15 @@ export const AGENTS: AgentSignature[] = [
       /^(generated|written) (with|by) (an? )?(ai|llm|chatgpt|gpt-?\d)\b/im,
     ],
   },
+  {
+    id: "mastra-code",
+    name: "Mastra Code",
+    short: "Mastra",
+    color: "#FB923C",
+    kind: "ai",
+    url: "https://mastra.ai",
+    message: [/^co-authored-by:\s*mastra code\b[^\n]*$/im],
+  },
   // Agents below have no commit signature we know of; they are credited via local transcripts.
   { id: "openclaw", name: "OpenClaw", short: "OpenClaw", color: "#FF5A36", kind: "ai", url: "https://openclaw.ai" },
   { id: "pi", name: "pi", short: "pi", color: "#A3E635", kind: "ai", url: "https://github.com/badlogic/pi-mono" },
@@ -341,6 +352,10 @@ export interface Verdict {
 /** Like `classifyCommit`, but also says which identity or message line matched. */
 export function explainCommit(c: CommitIdentity): Verdict {
   const people = [`${c.authorName} <${c.authorEmail}>`, `${c.committerName} <${c.committerEmail}>`];
+  // Dependency bots paste upstream release notes into their messages, which can
+  // mention any agent. Their commits are bot commits, whatever the text says.
+  const depBot = DEPENDENCY_BOT.test(people[0]!) ? people[0]! : null;
+  if (depBot) return { id: "bot", evidence: depBot };
   let best: { id: string; pos: number; evidence: string } | null = null;
   let bot: string | null = null;
   const consider = (agent: AgentSignature) => {
@@ -374,3 +389,4 @@ export function explainCommit(c: CommitIdentity): Verdict {
 }
 
 const OTHER_AI = "other-ai";
+const DEPENDENCY_BOT = /^(dependabot|renovate|greenkeeper|snyk-bot|depfu|pyup-bot|scala-steward|mend-bolt)/i;

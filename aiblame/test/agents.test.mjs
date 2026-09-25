@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { classifyCommit } from "../dist/index.js";
+import { AGENTS, classifyCommit } from "../dist/index.js";
 
 const human = { authorName: "Ada", authorEmail: "ada@example.com", committerName: "Ada", committerEmail: "ada@example.com" };
 const commit = (over) => ({ ...human, message: "Update things\n", ...over });
@@ -40,6 +40,10 @@ const cases = [
   ["human co-author named Jules", commit({ message: "x\n\nCo-authored-by: Jules Verne <jules@example.com>\n" }), "human"],
   ["human co-author at OpenAI", commit({ message: "x\n\nCo-authored-by: Sam <sam@openai.com>\n" }), "human"],
   ["Cline Contributors credit", commit({ message: "Port feature\n\nCo-authored-by: Cline Contributors <contributors@cline.dev>\n" }), "human"],
+  ["Mastra Code", commit({ message: "x\n\nCo-authored-by: Mastra Code (openai/gpt-5.5) <noreply@mastra.ai>\n" }), "mastra-code"],
+  ["Cursor sign-off", commit({ message: "x\n\nSigned-off-by: Cursor <cursoragent@cursor.com>\n" }), "cursor"],
+  ["an agent merely mentioned in the body", commit({ message: "Trust bots\n\nTreat `devin-ai-integration[bot]` answers as untrusted, like cursoragent@cursor.com.\n" }), "human"],
+  ["renovate release notes quoting an AI footer", commit({ authorName: "renovate[bot]", authorEmail: "29139614+renovate[bot]@users.noreply.github.com", message: "Update dep\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nCo-Authored-By: Claude <noreply@anthropic.com>\n" }), "bot"],
   ["dependabot", commit({ authorName: "dependabot[bot]", authorEmail: "49699333+dependabot[bot]@users.noreply.github.com" }), "bot"],
   ["renovate", commit({ authorName: "renovate[bot]", authorEmail: "29139614+renovate[bot]@users.noreply.github.com" }), "bot"],
   ["plain human", commit({}), "human"],
@@ -77,4 +81,13 @@ test("an AI trailer on a bot-authored commit counts as AI", () => {
     message: "x\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n",
   });
   assert.equal(classifyCommit(c), "claude-code");
+});
+
+test("every message pattern is anchored to a line, so mentions never count", () => {
+  for (const agent of AGENTS) {
+    for (const re of agent.message ?? []) {
+      assert.ok(re.source.startsWith("^"), `${agent.id}: ${re} must start with ^`);
+      assert.ok(re.flags.includes("m") || re.source.startsWith("^aider"), `${agent.id}: ${re} needs the m flag`);
+    }
+  }
 });
