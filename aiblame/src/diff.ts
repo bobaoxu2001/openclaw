@@ -8,7 +8,7 @@
 import { agentInfo, explainCommit, HUMAN, isAI } from "./agents.js";
 import { attributeLines, type CommitMeta, type FileStat } from "./analyze.js";
 import { makeFilter, type FilterOptions } from "./files.js";
-import { blameFile, commitsBySha, openRepo, resolveRev, walkLog, type RepoInfo } from "./git.js";
+import { blameFile, commitsBySha, linguistExcluded, openRepo, resolveRev, walkLog, type RepoInfo } from "./git.js";
 import { loadTranscripts, type TranscriptIndex } from "./transcripts.js";
 import { git, pool } from "./util/proc.js";
 import { VERSION } from "./version.js";
@@ -112,7 +112,9 @@ export async function analyzeDiff(opts: DiffOptions): Promise<DiffReport> {
     ["diff", "-U0", "--no-color", "--no-ext-diff", "--no-renames", "--src-prefix=a/", "--dst-prefix=b/", mergeBase, headSha],
     { cwd: repo.dir },
   );
-  const ranges = [...parseAddedRanges(patch)].filter(([path]) => filter(path));
+  let ranges = [...parseAddedRanges(patch)].filter(([path]) => filter(path));
+  const generated = await linguistExcluded(repo, headSha, ranges.map(([path]) => path));
+  ranges = ranges.filter(([path]) => !generated.has(path));
   const transcripts: TranscriptIndex | null = opts.transcripts === false || repo.bare ? null : loadTranscripts(repo.dir);
   const blamed = await pool(ranges, opts.jobs ?? 8, async ([path, r]) => ({
     path,

@@ -33,10 +33,13 @@ before(() => {
   repo = join(root, "repo");
   mkdirSync(repo);
   git(["init", "-q", "-b", "main"]);
-  commit({ "src/a.ts": lines("a", 10) }, "Initial");
+  commit({ "src/a.ts": lines("a", 10), ".gitattributes": "gen/** linguist-generated\n" }, "Initial");
   git(["checkout", "-q", "-b", "feature"]);
   // Claude adds 6 lines to a.ts and a new 8-line file; a human adds 4 lines; main moves on meanwhile.
-  commit({ "src/a.ts": lines("a", 10) + lines("claude", 6), "src/new.ts": lines("n", 8) }, "Add feature\n\nCo-Authored-By: Claude <noreply@anthropic.com>");
+  commit(
+    { "src/a.ts": lines("a", 10) + lines("claude", 6), "src/new.ts": lines("n", 8), "gen/out.ts": lines("g", 5) },
+    "Add feature\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+  );
   commit({ "src/b.ts": lines("h", 4) }, "Human bit");
   git(["checkout", "-q", "main"]);
   commit({ "src/main-only.ts": lines("m", 5) }, "Main work");
@@ -82,6 +85,7 @@ test("analyzeDiff attributes exactly the lines the branch adds", async () => {
   assert.equal(r.commits.ai, 1);
   assert.deepEqual(r.agents.map((a) => [a.id, a.lines]), [["claude-code", 14]]);
   assert.ok(!r.files.some((f) => f.path === "src/main-only.ts"));
+  assert.ok(!r.files.some((f) => f.path === "gen/out.ts"), "linguist-generated files are skipped");
 });
 
 test("the PR comment is marked, summarised and escaped", async () => {
