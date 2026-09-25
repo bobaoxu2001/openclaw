@@ -15,7 +15,7 @@
 npx aiblame
 ```
 
-<img src="docs/terminal.png" width="720" alt="在 All-Hands-AI/OpenHands 上运行 aiblame：68.9% 的现存代码由 AI 编写">
+<img src="docs/demo.gif" width="720" alt="动图演示：在 All-Hands-AI/OpenHands 上运行 npx aiblame，68.8% 的现存代码由 AI 编写">
 
 </div>
 

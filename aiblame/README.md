@@ -15,7 +15,7 @@ English · [简体中文](README.zh-CN.md)
 npx aiblame
 ```
 
-<img src="docs/terminal.png" width="720" alt="aiblame run on All-Hands-AI/OpenHands: 68.9% of the current code was written by AI agents, mostly by OpenHands itself, then Cursor and Claude Code">
+<img src="docs/demo.gif" width="720" alt="Animated demo: npx aiblame on All-Hands-AI/OpenHands finds 68.8% of the current code written by AI agents, mostly OpenHands itself, then Cursor and Claude Code">
 
 </div>
 
@@ -357,7 +357,9 @@ npm test               # builds, then runs the unit and end-to-end tests
 node dist/cli.js .     # try your build
 ```
 
-The leaderboard above is reproducible with [`scripts/leaderboard.mjs`](scripts/leaderboard.mjs).
+The leaderboard above is reproducible with [`scripts/leaderboard.mjs`](scripts/leaderboard.mjs), and
+[`scripts/build-site.mjs`](scripts/build-site.mjs) turns the same reports into [an interactive leaderboard page](site/index.html)
+with a breakdown for every repo, ready for GitHub Pages.
 
 ## Library
 
