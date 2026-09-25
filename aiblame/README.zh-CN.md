@@ -76,16 +76,16 @@ AI 智能体已经在写世界上相当一部分代码，但没人说得清到�
 | [browser-use/browser-use](https://github.com/browser-use/browser-use) | **2.5%** | 3.0% | Claude Code 1.7%, Cursor 0.8% | 261 / 10,295 |
 | [vitejs/vite](https://github.com/vitejs/vite) | **1.9%** | 1.7% | Claude Code 0.9%, GitHub Copilot 0.7%, OpenAI Codex 0.2% | 60 / 9,705 |
 | [withastro/astro](https://github.com/withastro/astro) | **~1.9%** | ~2.3% | GitHub Copilot 1.5%, Claude Code 0.4% | 24 / 15,118 |
-| [zed-industries/zed](https://github.com/zed-industries/zed) | **1.8%** | 1.9% | Claude Code 1.2%, Amp 0.2%, Cursor 0.2% | 142 / 40,134 |
+| [zed-industries/zed](https://github.com/zed-industries/zed) | **1.8%** | 1.9% | Claude Code 1.2%, Amp 0.2%, Cursor 0.2% | 142 / 40,135 |
 | [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp) | **1.6%** | 1.6% | GitHub Copilot 0.9%, Claude Code 0.7% | 34 / 11,181 |
 | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) | **1.3%** | 1.3% | Claude Code 1.3% | 12 / 6,848 |
 | [langchain-ai/langchain](https://github.com/langchain-ai/langchain) | **1.2%** | 1.4% | Claude Code 0.9%, GitHub Copilot 0.3% | 44 / 16,852 |
 | [vercel/next.js](https://github.com/vercel/next.js) | **~1.2%** | ~1.3% | Claude Code 1.1%, Cursor 0.1% | 231 / 35,862 |
 | [openclaw/openclaw](https://github.com/openclaw/openclaw) | **~1.2%** | ~1.2% | Claude Code 0.7%, Amp 0.3%, GitHub Copilot 0.1% | 1,740 / 99,874 |
+| [ghostty-org/ghostty](https://github.com/ghostty-org/ghostty) | **0.9%** | 1.0% | Claude Code 0.5%, Amp 0.4% | 115 / 17,925 |
 | [open-webui/open-webui](https://github.com/open-webui/open-webui) | **0.9%** | 0.8% | Claude Code 0.8% | 208 / 18,717 |
 | [astral-sh/ruff](https://github.com/astral-sh/ruff) | **~0.8%** | ~1.0% | Claude Code 0.7%, OpenAI Codex 0.1% | 78 / 17,374 |
 | [microsoft/playwright](https://github.com/microsoft/playwright) | **0.7%** | 0.6% | GitHub Copilot 0.5%, Claude Code 0.2% | 82 / 17,980 |
-| [ghostty-org/ghostty](https://github.com/ghostty-org/ghostty) | **0.6%** | 0.7% | Claude Code 0.5% | 88 / 17,925 |
 | [honojs/hono](https://github.com/honojs/hono) | **0.6%** | 0.5% | Claude Code 0.6% | 12 / 2,836 |
 | [sveltejs/svelte](https://github.com/sveltejs/svelte) | **~0.6%** | ~0.4% | Claude Code 0.4%, GitHub Copilot 0.2% | 22 / 11,411 |
 | [facebook/react](https://github.com/facebook/react) | **~0.6%** | ~0.6% | Claude Code 0.4%, Amp 0.1% | 35 / 21,708 |
