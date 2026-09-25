@@ -126,7 +126,12 @@ export const AGENTS: AgentSignature[] = [
     kind: "ai",
     url: "https://ampcode.com",
     identity: [/amp@ampcode\.com/i],
-    message: [/^co-authored-by:[^\n]*<amp@ampcode\.com>/im, /^amp-thread(-id)?:/im],
+    message: [
+      /^co-authored-by:[^\n]*<amp@ampcode\.com>/im,
+      /^amp-thread(-id)?:/im,
+      // A line that is nothing but a thread link is how some maintainers disclose Amp use.
+      /^<?https:\/\/ampcode\.com\/threads\/[\w-]+\S*>?\s*$/im,
+    ],
   },
   {
     id: "openhands",

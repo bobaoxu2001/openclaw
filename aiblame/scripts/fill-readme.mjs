@@ -9,13 +9,16 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dir = process.argv[2];
 if (!dir) throw new Error("usage: fill-readme.mjs <reports-dir>");
-const table = execFileSync(process.execPath, [join(root, "scripts/leaderboard.mjs"), dir, "--svg", join(root, "docs/leaderboard.svg"), "--top", "30"], { encoding: "utf8" });
+const script = join(root, "scripts/leaderboard.mjs");
+// The chart shows the top 30; the table lists every report.
+execFileSync(process.execPath, [script, dir, "--svg", join(root, "docs/leaderboard.svg"), "--top", "30"]);
+const table = execFileSync(process.execPath, [script, dir], { encoding: "utf8" });
 
 const blocks = {
   "README.md": `<img src="docs/leaderboard.svg" width="760" alt="Bar chart of the share of current code written by AI agents in popular repositories">
 
 <details>
-<summary>Full table (with the code-only share)</summary>
+<summary>Full table: all ${table.trim().split("\n").length - 2} repositories, with the code-only share</summary>
 
 "Code only" leaves out docs, config and data files (\`--code\`). \`~\` marks estimates from a random sample of files.
 
@@ -24,7 +27,7 @@ ${table}
   "README.zh-CN.md": `<img src="docs/leaderboard.svg" width="760" alt="热门仓库中 AI 编写代码占比的条形图">
 
 <details>
-<summary>完整表格（含"仅代码"占比）</summary>
+<summary>完整表格：全部 ${table.trim().split("\n").length - 2} 个仓库（含"仅代码"占比）</summary>
 
 "Code only" 不计文档、配置和数据文件（\`--code\`）。\`~\` 表示基于随机抽样文件的估计值。
 

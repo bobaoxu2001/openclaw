@@ -38,6 +38,68 @@ line of your repo to find out who wrote the code that is still there *today*.
 ## Leaderboard: how AI-written is your favourite repo?
 
 <!-- LEADERBOARD:START -->
+<img src="docs/leaderboard.svg" width="760" alt="Bar chart of the share of current code written by AI agents in popular repositories">
+
+<details>
+<summary>Full table: all 51 repositories, with the code-only share</summary>
+
+"Code only" leaves out docs, config and data files (`--code`). `~` marks estimates from a random sample of files.
+
+| Repository | AI-written | Code only | Top agents | AI-signed commits |
+|---|---:|---:|---|---:|
+| [All-Hands-AI/OpenHands](https://github.com/All-Hands-AI/OpenHands) | **68.7%** | 67.8% | OpenHands 54.6%, Cursor 8.6%, Claude Code 5.4% | 2,590 / 8,327 |
+| [mastra-ai/mastra](https://github.com/mastra-ai/mastra) | **~44.9%** | ~54.3% | Mastra Code 31.4%, Claude Code 11.0%, Devin 1.6% | 3,513 / 20,039 |
+| [anthropics/claude-code](https://github.com/anthropics/claude-code) | **32.7%** | 5.0% | Claude Code 32.7% | 73 / 878 |
+| [RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) | **30.0%** | 33.4% | Roo Code 22.6%, Claude Code 6.9%, GitHub Copilot 0.4% | 552 / 7,073 |
+| [microsoft/vscode](https://github.com/microsoft/vscode) | **~29.4%** | ~31.7% | GitHub Copilot 29.2%, Claude Code 0.2% | 6,299 / 166,130 |
+| [n8n-io/n8n](https://github.com/n8n-io/n8n) | **~25.7%** | ~28.1% | Claude Code 20.9%, Cursor 4.6%, OpenAI Codex 0.1% | 2,876 / 24,802 |
+| [cli/cli](https://github.com/cli/cli) | **25.1%** | 24.0% | GitHub Copilot 25.1% | 601 / 12,202 |
+| [charmbracelet/crush](https://github.com/charmbracelet/crush) | **21.7%** | 22.4% | Crush 20.7%, Claude Code 0.9%, GitHub Copilot 0.1% | 255 / 4,220 |
+| [vllm-project/vllm](https://github.com/vllm-project/vllm) | **~21.5%** | ~22.5% | OpenAI Codex 11.2%, Claude Code 7.1%, Gemini 2.0% | 1,764 / 21,953 |
+| [block/goose](https://github.com/block/goose) | **19.0%** | 12.9% | GitHub Copilot 14.3%, Claude Code 4.2%, Amp 0.4% | 267 / 5,731 |
+| [Aider-AI/aider](https://github.com/Aider-AI/aider) | **16.9%** | 61.6% | Aider 16.9% | 5,947 / 13,138 |
+| [openai/openai-agents-python](https://github.com/openai/openai-agents-python) | **15.2%** | 17.6% | OpenAI Codex 15.2% | 2 / 2,355 |
+| [sst/opencode](https://github.com/sst/opencode) | **~9.6%** | ~11.6% | opencode 9.1%, GitHub Copilot 0.3%, Claude Code 0.1% | 1,868 / 15,794 |
+| [excalidraw/excalidraw](https://github.com/excalidraw/excalidraw) | **6.9%** | 8.9% | Claude Code 6.9% | 8 / 4,096 |
+| [cline/cline](https://github.com/cline/cline) | **6.4%** | 6.0% | Claude Code 4.3%, Cursor 1.4%, GitHub Copilot 0.7% | 155 / 7,434 |
+| [better-auth/better-auth](https://github.com/better-auth/better-auth) | **6.2%** | 6.1% | Claude Code 3.3%, GitHub Copilot 1.7%, Cursor 1.1% | 159 / 7,623 |
+| [vercel/ai](https://github.com/vercel/ai) | **~6.1%** | ~7.3% | Claude Code 4.8%, Cursor 1.2%, GitHub Copilot 0.1% | 242 / 8,683 |
+| [denoland/deno](https://github.com/denoland/deno) | **~5.9%** | ~5.7% | Claude Code 5.7%, GitHub Copilot 0.1% | 429 / 17,368 |
+| [oven-sh/bun](https://github.com/oven-sh/bun) | **~5.7%** | ~4.9% | Claude Code 5.7% | 714 / 18,252 |
+| [biomejs/biome](https://github.com/biomejs/biome) | **~5.3%** | ~5.5% | CodeRabbit 3.1%, Claude Code 2.0%, GitHub Copilot 0.1% | 145 / 10,985 |
+| [openai/codex](https://github.com/openai/codex) | **~5.0%** | ~4.9% | OpenAI Codex 5.0% | 364 / 11,404 |
+| [modelcontextprotocol/typescript-sdk](https://github.com/modelcontextprotocol/typescript-sdk) | **4.3%** | 4.9% | Claude Code 3.0%, Cursor 0.8%, GitHub Copilot 0.6% | 80 / 1,618 |
+| [supabase/supabase](https://github.com/supabase/supabase) | **~4.1%** | ~6.1% | Claude Code 2.8%, GitHub Copilot 0.7%, Cursor 0.4% | 518 / 38,735 |
+| [continuedev/continue](https://github.com/continuedev/continue) | **3.5%** | 4.4% | Claude Code 3.4% | 242 / 21,569 |
+| [astral-sh/uv](https://github.com/astral-sh/uv) | **3.1%** | 2.7% | Claude Code 1.5%, OpenAI Codex 1.4%, GitHub Copilot 0.2% | 159 / 10,636 |
+| [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) | **2.8%** | 5.9% | Gemini 2.8% | 275 / 6,437 |
+| [browser-use/browser-use](https://github.com/browser-use/browser-use) | **2.5%** | 3.0% | Claude Code 1.7%, Cursor 0.8% | 261 / 10,295 |
+| [vitejs/vite](https://github.com/vitejs/vite) | **1.9%** | 1.7% | Claude Code 0.9%, GitHub Copilot 0.7%, OpenAI Codex 0.2% | 60 / 9,705 |
+| [withastro/astro](https://github.com/withastro/astro) | **~1.9%** | ~2.3% | GitHub Copilot 1.5%, Claude Code 0.4% | 24 / 15,118 |
+| [zed-industries/zed](https://github.com/zed-industries/zed) | **1.8%** | 1.9% | Claude Code 1.2%, Amp 0.2%, Cursor 0.2% | 142 / 40,134 |
+| [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp) | **1.6%** | 1.6% | GitHub Copilot 0.9%, Claude Code 0.7% | 34 / 11,181 |
+| [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) | **1.3%** | 1.3% | Claude Code 1.3% | 12 / 6,848 |
+| [langchain-ai/langchain](https://github.com/langchain-ai/langchain) | **1.2%** | 1.4% | Claude Code 0.9%, GitHub Copilot 0.3% | 44 / 16,852 |
+| [vercel/next.js](https://github.com/vercel/next.js) | **~1.2%** | ~1.3% | Claude Code 1.1%, Cursor 0.1% | 231 / 35,862 |
+| [openclaw/openclaw](https://github.com/openclaw/openclaw) | **~1.2%** | ~1.2% | Claude Code 0.7%, Amp 0.3%, GitHub Copilot 0.1% | 1,740 / 99,874 |
+| [open-webui/open-webui](https://github.com/open-webui/open-webui) | **0.9%** | 0.8% | Claude Code 0.8% | 208 / 18,717 |
+| [astral-sh/ruff](https://github.com/astral-sh/ruff) | **~0.8%** | ~1.0% | Claude Code 0.7%, OpenAI Codex 0.1% | 78 / 17,374 |
+| [microsoft/playwright](https://github.com/microsoft/playwright) | **0.7%** | 0.6% | GitHub Copilot 0.5%, Claude Code 0.2% | 82 / 17,980 |
+| [ghostty-org/ghostty](https://github.com/ghostty-org/ghostty) | **0.6%** | 0.7% | Claude Code 0.5% | 88 / 17,925 |
+| [honojs/hono](https://github.com/honojs/hono) | **0.6%** | 0.5% | Claude Code 0.6% | 12 / 2,836 |
+| [sveltejs/svelte](https://github.com/sveltejs/svelte) | **~0.6%** | ~0.4% | Claude Code 0.4%, GitHub Copilot 0.2% | 22 / 11,411 |
+| [facebook/react](https://github.com/facebook/react) | **~0.6%** | ~0.6% | Claude Code 0.4%, Amp 0.1% | 35 / 21,708 |
+| [shadcn-ui/ui](https://github.com/shadcn-ui/ui) | **~0.5%** | ~0.4% | Claude Code 0.4% | 62 / 2,459 |
+| [neovim/neovim](https://github.com/neovim/neovim) | **0.2%** | 0.2% | Claude Code 0.2% | 57 / 38,230 |
+| [badlogic/pi-mono](https://github.com/badlogic/pi-mono) | **0.2%** | 0.2% | Claude Code 0.1% | 15 / 6,531 |
+| [fastapi/fastapi](https://github.com/fastapi/fastapi) | **<0.1%** | 0.2% | none found | 3 / 7,713 |
+| [pydantic/pydantic](https://github.com/pydantic/pydantic) | **<0.1%** | <0.1% | none found | 4 / 5,758 |
+| [ollama/ollama](https://github.com/ollama/ollama) | **<0.1%** | <0.1% | none found | 4 / 5,795 |
+| [django/django](https://github.com/django/django) | **~0%** | ~0% | none found | 0 / 34,952 |
+| [tauri-apps/tauri](https://github.com/tauri-apps/tauri) | **0%** | 0% | none found | 0 / 6,234 |
+| [vuejs/core](https://github.com/vuejs/core) | **0%** | 0% | none found | 0 / 7,198 |
+
+</details>
 <!-- LEADERBOARD:END -->
 
 Want your repo on here? Run `npx aiblame --card` and show it off. (See [Put it in your README](#put-it-in-your-readme).)
