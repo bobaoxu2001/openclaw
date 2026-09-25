@@ -7,6 +7,8 @@
 How much of your code did Claude, Copilot, Cursor, Codex, Devin & friends *actually* write?<br>
 One command. Any repo. Down to the line. No guessing.
 
+English · [简体中文](README.zh-CN.md)
+
 <img src="docs/self-badge.svg" alt="AI-written badge for aiblame itself">
 
 ```sh

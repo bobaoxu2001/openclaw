@@ -220,7 +220,7 @@ export const AGENTS: AgentSignature[] = [
     id: "roo",
     name: "Roo Code",
     short: "Roo",
-    color: "#8B5CF6",
+    color: "#E0A96D",
     kind: "ai",
     url: "https://roocode.com",
     identity: [/roomote/i, /^roo(code)?\[bot\] </i],
