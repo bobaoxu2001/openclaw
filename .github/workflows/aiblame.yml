@@ -1,0 +1,54 @@
+name: aiblame
+
+on:
+  push:
+    paths: ["aiblame/**", ".github/workflows/aiblame.yml"]
+  pull_request:
+    paths: ["aiblame/**", ".github/workflows/aiblame.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [18, 20, 22]
+        exclude:
+          - os: macos-latest
+            node: 18
+          - os: macos-latest
+            node: 20
+    defaults:
+      run:
+        working-directory: aiblame
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - name: Dogfood on this repository
+        run: node dist/cli.js .. --top 5
+
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./aiblame
+        id: aiblame
+        with:
+          card: out/aiblame-card.svg
+          badge: out/aiblame-badge.svg
+      - run: |
+          test -s out/aiblame-card.svg
+          test -s out/aiblame-badge.svg
+          echo "AI share: ${{ steps.aiblame.outputs.ai-share }}%"

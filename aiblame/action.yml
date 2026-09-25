@@ -1,0 +1,73 @@
+name: aiblame
+description: How much of this repo was written by AI? Keep an aiblame card or badge up to date, or enforce an AI-code policy.
+author: aiblame contributors
+branding:
+  icon: cpu
+  color: purple
+
+inputs:
+  card:
+    description: Write an SVG card to this path (e.g. .github/aiblame-card.svg).
+    default: ""
+  badge:
+    description: Write an SVG badge to this path (e.g. .github/aiblame-badge.svg).
+    default: ""
+  html:
+    description: Write the HTML report to this path.
+    default: ""
+  json:
+    description: Write the JSON report to this path.
+    default: aiblame.json
+  max-ai:
+    description: Fail the step when the AI-written share (in percent) is above this.
+    default: ""
+  args:
+    description: Extra command-line arguments for aiblame (e.g. --exclude 'docs/**').
+    default: ""
+
+outputs:
+  ai-share:
+    description: Percentage of the current code written by AI, e.g. "41.3".
+    value: ${{ steps.run.outputs.ai-share }}
+  report:
+    description: Path of the JSON report.
+    value: ${{ inputs.json }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build aiblame
+      shell: bash
+      run: |
+        if [ ! -f "$GITHUB_ACTION_PATH/dist/cli.js" ]; then
+          cd "$GITHUB_ACTION_PATH" && npm ci --no-audit --no-fund --silent && npm run build --silent
+        fi
+    - name: Run aiblame
+      id: run
+      shell: bash
+      env:
+        CARD: ${{ inputs.card }}
+        BADGE: ${{ inputs.badge }}
+        HTML: ${{ inputs.html }}
+        JSON: ${{ inputs.json }}
+        MAX_AI: ${{ inputs.max-ai }}
+        EXTRA: ${{ inputs.args }}
+      run: |
+        if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+          echo "::warning::Shallow checkout: every old line gets blamed on one commit. Use actions/checkout with fetch-depth: 0."
+        fi
+        args=(--json "$JSON")
+        [ -n "$CARD" ] && mkdir -p "$(dirname "$CARD")" && args+=(--card "$CARD")
+        [ -n "$BADGE" ] && mkdir -p "$(dirname "$BADGE")" && args+=(--badge "$BADGE")
+        [ -n "$HTML" ] && mkdir -p "$(dirname "$HTML")" && args+=(--html "$HTML")
+        [ -n "$MAX_AI" ] && args+=(--max-ai "$MAX_AI")
+        set +e
+        # EXTRA is intentionally word-split into separate arguments.
+        # shellcheck disable=SC2086
+        node "$GITHUB_ACTION_PATH/dist/cli.js" "${args[@]}" $EXTRA
+        code=$?
+        set -e
+        share=$(node -e 'const r=require(process.argv[1]);console.log(r.totals.lines?(r.totals.ai/r.totals.lines*100).toFixed(1):"0.0")' "$(realpath "$JSON")")
+        echo "ai-share=$share" >> "$GITHUB_OUTPUT"
+        echo "### aiblame: ${share}% of this repo is AI-written" >> "$GITHUB_STEP_SUMMARY"
+        exit $code

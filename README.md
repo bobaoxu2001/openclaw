@@ -1,5 +1,8 @@
 # OpenClaw Deployment
 
+> **New: [`aiblame`](aiblame/)** is `git blame` for the AI era. It shows how much of any repo was written by
+> Claude Code, Copilot, Cursor, Codex, Devin, Aider and other agents, down to the line. Try it: `npx aiblame`.
+
 Self-hosted deployment configuration for [OpenClaw](https://github.com/openclaw/openclaw) — your personal, open-source AI assistant.
 
 ## Prerequisites

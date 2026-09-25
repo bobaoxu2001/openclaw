@@ -1,0 +1,11 @@
+export { AGENTS, HUMAN, agentInfo, classifyCommit, explainCommit, isAI, type AgentSignature, type CommitIdentity, type Verdict } from "./agents.js";
+export { renderEvidence } from "./evidence.js";
+export { analyze, attributeLines, type AgentStat, type AnalyzeOptions, type FileStat, type Mode, type Report } from "./analyze.js";
+export { renderBlameView } from "./blameView.js";
+export { globToRegExp, isCode, languageOf, makeFilter } from "./files.js";
+export { renderHtml } from "./report/html.js";
+export { renderBadge, renderCard, renderShieldsEndpoint } from "./report/svg.js";
+export { renderTerminal } from "./report/terminal.js";
+export { loadTranscripts, parseApplyPatch, parseSearchReplace, TranscriptIndex } from "./transcripts.js";
+export { createPainter } from "./util/ansi.js";
+export { VERSION } from "./version.js";

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="172" viewBox="0 0 480 172" role="img" aria-label="All-Hands-AI/OpenHands: 68.8% AI-written">
+<title>All-Hands-AI/OpenHands: 68.8% written by AI (aiblame)</title>
+<style>
+svg{--bg:#ffffff;--fg:#1f2328;--muted:#656d76;--border:#d0d7de;--human:#d0d7de;--accent:#8250df}
+@media (prefers-color-scheme:dark){svg{--bg:#0d1117;--fg:#e6edf3;--muted:#8d96a0;--border:#30363d;--human:#30363d;--accent:#c084fc}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;fill:var(--fg)}
+.t{font-size:12px}.m{fill:var(--muted);font-size:12px}.h{font-size:14px;font-weight:600}
+.big{font-size:34px;font-weight:700;fill:var(--accent)}.s{font-size:13px;fill:var(--muted)}
+.bg{fill:var(--bg);stroke:var(--border)}.hu{fill:var(--human)}
+</style>
+<rect x="0.5" y="0.5" width="479" height="171" rx="8" class="bg"/>
+<text x="24" y="32" class="h">All-Hands-AI/OpenHands</text>
+<text x="456" y="32" class="m" text-anchor="end">402,098 lines · aiblame</text>
+<text x="24" y="76"><tspan class="big">68.8%</tspan><tspan class="s" dx="10">of the code is AI-written</tspan></text>
+<clipPath id="bar"><rect x="24" y="92" width="432" height="12" rx="6"/></clipPath>
+<g clip-path="url(#bar)"><rect x="24" y="92" width="234" height="12" fill="#FACC15"/><rect x="258" y="92" width="37" height="12" fill="#38BDF8"/><rect x="295" y="92" width="23" height="12" fill="#D97757"/><rect x="318" y="92" width="1" height="12" fill="#10A37F"/><rect x="319" y="92" width="1" height="12" fill="#A371F7"/><rect x="320" y="92" width="1" height="12" fill="#4B5563"/><rect x="321" y="92" width="135" height="12" class="hu"/></g>
+<circle cx="29" cy="124" r="5" fill="#FACC15"/><text x="40" y="128" class="t">OpenHands <tspan class="m">54.7%</tspan></text><circle cx="245" cy="124" r="5" fill="#38BDF8"/><text x="256" y="128" class="t">Cursor <tspan class="m">8.6%</tspan></text><circle cx="29" cy="144" r="5" fill="#D97757"/><text x="40" y="148" class="t">Claude Code <tspan class="m">5.4%</tspan></text><circle cx="245" cy="144" r="5" fill="#10A37F"/><text x="256" y="148" class="t">OpenAI Codex <tspan class="m"><0.1%</tspan></text>
+</svg>

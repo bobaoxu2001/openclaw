@@ -1,0 +1,64 @@
+{
+  "name": "aiblame",
+  "version": "0.1.0",
+  "description": "git blame for the AI era. See how much of any repo was written by Claude Code, Copilot, Cursor, Codex, Devin, Aider & friends, down to the line.",
+  "homepage": "https://github.com/bobaoxu2001/openclaw/tree/main/aiblame#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bobaoxu2001/openclaw.git",
+    "directory": "aiblame"
+  },
+  "bugs": {
+    "url": "https://github.com/bobaoxu2001/openclaw/issues"
+  },
+  "type": "module",
+  "bin": {
+    "aiblame": "dist/cli.js",
+    "git-aiblame": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "git",
+    "blame",
+    "ai",
+    "claude-code",
+    "copilot",
+    "cursor",
+    "codex",
+    "devin",
+    "aider",
+    "agents",
+    "vibe-coding",
+    "attribution",
+    "cli",
+    "git-blame",
+    "ai-detection",
+    "code-attribution",
+    "openhands",
+    "gemini",
+    "amp",
+    "opencode"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "^5.9.3"
+  }
+}
